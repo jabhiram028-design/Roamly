@@ -1,0 +1,173 @@
+import React from 'react';
+import { useApp } from '../context/AppContext';
+import { DESTINATIONS, FEATURED_TRIPS } from '../data/mockData';
+import { Heart, Trash2, ArrowRight } from 'lucide-react';
+
+export const WishlistPage: React.FC = () => {
+  const {
+    wishlistIds,
+    toggleWishlist,
+    navigateToDestination,
+    navigateToTrip,
+    setActiveTab
+  } = useApp();
+
+  const savedDestinations = DESTINATIONS.filter((d) => wishlistIds.includes(d.id));
+  const savedTrips = FEATURED_TRIPS.filter((t) => wishlistIds.includes(t.id));
+
+  const isEmpty = savedDestinations.length === 0 && savedTrips.length === 0;
+
+  return (
+    <div className="pt-28 pb-20 font-sans bg-[#F8F8F5] min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Header */}
+        <div className="mb-10">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#1769E8]">
+            Saved Collection
+          </span>
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[#101C35] mt-1 flex items-center gap-3">
+            My Travel Wishlist <Heart className="w-8 h-8 text-red-500 fill-red-500" />
+          </h1>
+          <p className="text-base text-gray-600 mt-2">
+            Your saved destinations and handpicked holiday packages.
+          </p>
+        </div>
+
+        {isEmpty ? (
+          <div className="bg-white rounded-3xl p-16 text-center space-y-4 shadow-sm border border-gray-100 max-w-lg mx-auto">
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+              <Heart className="w-8 h-8" />
+            </div>
+            <h3 className="font-serif text-2xl font-bold text-[#101C35]">
+              Your Wishlist is Empty
+            </h3>
+            <p className="text-sm text-gray-500">
+              Explore destinations and click the heart icon to save your dream travel spots here!
+            </p>
+            <button
+              onClick={() => setActiveTab('destinations')}
+              className="bg-[#1769E8] hover:bg-[#1253BD] text-white font-semibold px-8 py-3 rounded-full text-sm transition-colors cursor-pointer inline-flex items-center gap-2"
+            >
+              Explore Destinations <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-12">
+
+            {/* Saved Destinations */}
+            {savedDestinations.length > 0 && (
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-[#101C35] mb-6">
+                  Saved Destinations ({savedDestinations.length})
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {savedDestinations.map((dest) => (
+                    <div
+                      key={dest.id}
+                      className="bg-white rounded-3xl overflow-hidden shadow-card border border-gray-100 flex flex-col justify-between group"
+                    >
+                      <div className="relative h-60 overflow-hidden cursor-pointer" onClick={() => navigateToDestination(dest.id)}>
+                        <img
+                          src={dest.heroImage}
+                          alt={dest.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <button
+                          onClick={() => toggleWishlist(dest.id)}
+                          title="Remove from wishlist"
+                          className="absolute top-4 right-4 p-2 rounded-full bg-white/90 text-red-500 hover:bg-white transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-xs font-bold uppercase text-[#1769E8]">{dest.country}</span>
+                          <h4
+                            onClick={() => navigateToDestination(dest.id)}
+                            className="font-serif text-2xl font-bold text-[#101C35] group-hover:text-[#1769E8] transition-colors cursor-pointer"
+                          >
+                            {dest.name}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{dest.shortDescription}</p>
+                        </div>
+
+                        <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
+                          <span className="text-sm font-bold text-[#101C35]">${dest.averagePricePerDay}/day</span>
+                          <button
+                            onClick={() => navigateToDestination(dest.id)}
+                            className="px-4 py-2 bg-[#EAF5FF] text-[#1769E8] font-bold text-xs rounded-full cursor-pointer hover:bg-[#1769E8] hover:text-white transition-colors"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Saved Trips */}
+            {savedTrips.length > 0 && (
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-[#101C35] mb-6">
+                  Saved Holiday Packages ({savedTrips.length})
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {savedTrips.map((pkg) => (
+                    <div
+                      key={pkg.id}
+                      className="bg-white rounded-3xl overflow-hidden shadow-card border border-gray-100 flex flex-col justify-between group"
+                    >
+                      <div className="relative h-60 overflow-hidden cursor-pointer" onClick={() => navigateToTrip(pkg.id)}>
+                        <img
+                          src={pkg.heroImage}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <button
+                          onClick={() => toggleWishlist(pkg.id)}
+                          title="Remove from wishlist"
+                          className="absolute top-4 right-4 p-2 rounded-full bg-white/90 text-red-500 hover:bg-white transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-xs font-bold uppercase text-[#1769E8]">{pkg.durationDays} Days • {pkg.country}</span>
+                          <h4
+                            onClick={() => navigateToTrip(pkg.id)}
+                            className="font-serif text-2xl font-bold text-[#101C35] group-hover:text-[#1769E8] transition-colors cursor-pointer"
+                          >
+                            {pkg.title}
+                          </h4>
+                        </div>
+
+                        <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
+                          <span className="text-sm font-bold text-[#101C35]">${pkg.startingPrice.toLocaleString()}</span>
+                          <button
+                            onClick={() => navigateToTrip(pkg.id)}
+                            className="px-4 py-2 bg-[#EAF5FF] text-[#1769E8] font-bold text-xs rounded-full cursor-pointer hover:bg-[#1769E8] hover:text-white transition-colors"
+                          >
+                            View Package
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
