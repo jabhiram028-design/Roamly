@@ -109,8 +109,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem('roamly_user');
       return saved ? JSON.parse(saved) : {
         id: 'usr-1',
-        name: 'Sarah Jenkins',
-        email: 'sarah.j@example.com',
+        name: 'Abhi Groups 1',
+        email: 'jabhiram028@gamail.com',
         joinedDate: 'October 2025'
       };
     } catch {
