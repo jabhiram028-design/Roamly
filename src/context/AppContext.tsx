@@ -30,21 +30,15 @@ interface AppContextType {
   navigateToDestination: (id: string) => void;
   navigateToTrip: (id: string) => void;
   navigateToGuide: (id: string) => void;
-
-  // Wishlist
   wishlistIds: string[];
   toggleWishlist: (id: string) => void;
   isInWishlist: (id: string) => boolean;
-
-  // Search & Filter
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedCategory: string | null;
   setSelectedCategory: (cat: string | null) => void;
   selectedStyle: string | null;
   setSelectedStyle: (style: string | null) => void;
-
-  // User & Auth
   user: UserProfile | null;
   login: (email: string, name: string) => void;
   signup: (email: string, name: string) => void;
@@ -53,20 +47,14 @@ interface AppContextType {
   authMode: 'login' | 'signup';
   openAuthModal: (mode?: 'login' | 'signup') => void;
   closeAuthModal: () => void;
-
-  // Booking Modal
   isBookingModalOpen: boolean;
   selectedTripForBooking: TripPackage | null;
   openBookingModal: (trip?: TripPackage) => void;
   closeBookingModal: () => void;
   submitBooking: (bookingData: any) => Promise<boolean>;
-
-  // Search Modal
   isSearchModalOpen: boolean;
   openSearchModal: () => void;
   closeSearchModal: () => void;
-
-  // Toast
   toasts: Toast[];
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   removeToast: (id: string) => void;
@@ -80,7 +68,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
 
-  // Wishlist stored in local storage
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('roamly_wishlist');
@@ -98,50 +85,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [wishlistIds]);
 
-  // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
 
-  // Auth state
+  // Profile defaults. Existing saved profile data is migrated to these details.
+  const DEFAULT_USER: UserProfile = {
+    id: 'usr-1',
+    name: 'Abhi Groups 1',
+    email: 'jabhiram028@gmail.com',
+    joinedDate: 'October 2025'
+  };
+
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
       const saved = localStorage.getItem('roamly_user');
-      return saved ? JSON.parse(saved) : {
-        id: 'usr-1',
-        name: 'Abhi Groups 1',
-        email: 'jabhiram028@gamail.com',
-        joinedDate: 'October 2025'
-      };
+      if (saved) {
+        const parsed = JSON.parse(saved) as UserProfile;
+        const migratedUser = { ...parsed, name: DEFAULT_USER.name, email: DEFAULT_USER.email };
+        localStorage.setItem('roamly_user', JSON.stringify(migratedUser));
+        return migratedUser;
+      }
+      localStorage.setItem('roamly_user', JSON.stringify(DEFAULT_USER));
+      return DEFAULT_USER;
     } catch {
-      return null;
+      return DEFAULT_USER;
     }
   });
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-
-  // Booking Modal
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedTripForBooking, setSelectedTripForBooking] = useState<TripPackage | null>(null);
-
-  // Search Modal
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
-  // Toast System
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      removeToast(id);
-    }, 4000);
+    setTimeout(() => removeToast(id), 4000);
   };
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  const removeToast = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
 
   const setActiveTab = (tab: TabType) => {
     setActiveTabState(tab);
@@ -204,25 +189,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsAuthModalOpen(true);
   };
 
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
+  const closeAuthModal = () => setIsAuthModalOpen(false);
 
   const openBookingModal = (trip?: TripPackage) => {
-    if (trip) {
-      setSelectedTripForBooking(trip);
-    } else if (!selectedTripForBooking) {
-      setSelectedTripForBooking(FEATURED_TRIPS[0]);
-    }
+    if (trip) setSelectedTripForBooking(trip);
+    else if (!selectedTripForBooking) setSelectedTripForBooking(FEATURED_TRIPS[0]);
     setIsBookingModalOpen(true);
   };
 
-  const closeBookingModal = () => {
-    setIsBookingModalOpen(false);
-  };
+  const closeBookingModal = () => setIsBookingModalOpen(false);
 
   const submitBooking = async (_bookingData: any): Promise<boolean> => {
-    // Simulate server response
     await new Promise((resolve) => setTimeout(resolve, 800));
     showToast('Booking request submitted! Check your email for confirmation.', 'success');
     closeBookingModal();
