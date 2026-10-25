@@ -1,22 +1,24 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 const OWNER_EMAIL = process.env.ROAMLY_OWNER_EMAIL || 'jabhiram028@gmail.com';
 const FROM_EMAIL = process.env.ROAMLY_FROM_EMAIL || 'Roamly <onboarding@resend.dev>';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+type Request = {
+  method?: string;
+  body?: Record<string, unknown>;
+};
+
+type Response = {
+  status: (code: number) => Response;
+  json: (body: unknown) => void;
+};
+
+export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, message: 'Method not allowed' });
   }
 
   const {
-    tripTitle,
-    startDate,
-    guestsCount,
-    totalPrice,
-    contactName,
-    contactEmail,
-    contactPhone,
-    specialRequests
+    tripTitle, startDate, guestsCount, totalPrice,
+    contactName, contactEmail, contactPhone, specialRequests
   } = req.body || {};
 
   if (!tripTitle || !startDate || !contactName || !contactEmail) {
@@ -25,10 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    return res.status(503).json({
-      ok: false,
-      message: 'Booking email service is not configured yet. Please add RESEND_API_KEY in Vercel.'
-    });
+    return res.status(503).json({ ok: false, message: 'Booking email service is not configured yet.' });
   }
 
   const html = `
@@ -44,35 +43,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     <p><strong>Special requests:</strong> ${escapeHtml(specialRequests || 'None')}</p>
   `;
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: [OWNER_EMAIL],
-      reply_to: contactEmail,
-      subject: `New Roamly booking — ${tripTitle}`,
-      html
-    })
-  });
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: [OWNER_EMAIL],
+        reply_to: contactEmail,
+        subject: `New Roamly booking — ${tripTitle}`,
+        html
+      })
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Resend booking error:', errorText);
-    return res.status(502).json({ ok: false, message: 'Unable to send the booking email right now.' });
+    if (!response.ok) {
+      console.error('Resend booking error:', await response.text());
+      return res.status(502).json({ ok: false, message: 'Unable to send the booking email right now.' });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error('Booking email request failed:', error);
+    return res.status(500).json({ ok: false, message: 'Booking service is temporarily unavailable.' });
   }
-
-  return res.status(200).json({ ok: true });
 }
 
-function escapeHtml(value: string) {
+function escapeHtml(value: unknown) {
   return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 }
