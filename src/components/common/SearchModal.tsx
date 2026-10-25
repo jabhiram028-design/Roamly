@@ -143,7 +143,7 @@ export const SearchModal: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-sm font-bold text-[#1769E8] shrink-0">
-                      From ${trip.startingPrice.toLocaleString()}
+                      From ₹${trip.startingPrice.toLocaleString('en-IN')} INR
                     </span>
                   </button>
                 ))}
