@@ -17,6 +17,7 @@ import { BookingModal } from './components/common/BookingModal';
 import { SearchModal } from './components/common/SearchModal';
 import { AuthModal } from './components/common/AuthModal';
 import { ToastContainer } from './components/common/Toast';
+import { WhatsAppButton } from './components/common/WhatsAppButton';
 
 const VisitorCurrencyLayer: React.FC = () => {
   useEffect(() => {
@@ -100,6 +101,7 @@ const AppContent: React.FC = () => {
       <SearchModal />
       <AuthModal />
       <ToastContainer />
+      <WhatsAppButton />
     </div>
   );
 };
