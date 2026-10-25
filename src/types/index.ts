@@ -32,19 +32,9 @@ export interface Destination {
   reviewsCount: number;
   bestTimeToVisit: string;
   averagePricePerDay: number;
-  popularAttractions: {
-    name: string;
-    description: string;
-    image: string;
-  }[];
+  popularAttractions: { name: string; description: string; image: string }[];
   suggestedActivities: string[];
-  accommodations: {
-    name: string;
-    type: string;
-    rating: number;
-    priceRange: string;
-    image: string;
-  }[];
+  accommodations: { name: string; type: string; rating: number; priceRange: string; image: string }[];
   travelTips: string[];
 }
 
@@ -108,18 +98,10 @@ export interface TravelGuide {
   category: string;
   readTimeMinutes: number;
   publishedDate: string;
-  author: {
-    name: string;
-    role: string;
-    avatar: string;
-  };
+  author: { name: string; role: string; avatar: string };
   heroImage: string;
   summary: string;
-  sections: {
-    heading: string;
-    content: string;
-    image?: string;
-  }[];
+  sections: { heading: string; content: string; image?: string }[];
   packingList?: string[];
   sustainableTips?: string[];
 }
@@ -139,6 +121,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  role: 'owner' | 'guest';
   avatar?: string;
   joinedDate: string;
 }
