@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { formatVisitorPrice } from './utils/currency';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
@@ -17,11 +18,65 @@ import { SearchModal } from './components/common/SearchModal';
 import { AuthModal } from './components/common/AuthModal';
 import { ToastContainer } from './components/common/Toast';
 
+const VisitorCurrencyLayer: React.FC = () => {
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const processedNodes = new WeakSet<Text>();
+    const pricePattern = /₹\s*([\d,]+(?:\.\d+)?)\s*INR/g;
+
+    const formatPriceText = (node: Text) => {
+      if (processedNodes.has(node)) return;
+      const original = node.nodeValue || '';
+      if (!pricePattern.test(original)) return;
+
+      pricePattern.lastIndex = 0;
+      const updated = original.replace(pricePattern, (_match, amount: string) => {
+        const usdAmount = Number(amount.replace(/,/g, ''));
+        return Number.isFinite(usdAmount) ? formatVisitorPrice(usdAmount) : _match;
+      });
+
+      if (updated !== original) {
+        processedNodes.add(node);
+        node.nodeValue = updated;
+      }
+    };
+
+    const scan = (root: Node) => {
+      if (root.nodeType === Node.TEXT_NODE) {
+        formatPriceText(root as Text);
+        return;
+      }
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let current: Node | null;
+      while ((current = walker.nextNode())) formatPriceText(current as Text);
+    };
+
+    scan(document.body);
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData') {
+          formatPriceText(mutation.target as Text);
+        } else {
+          mutation.addedNodes.forEach(scan);
+        }
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return null;
+};
+
 const AppContent: React.FC = () => {
   const { activeTab } = useApp();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#4B5563] font-sans selection:bg-[#1769E8] selection:text-white">
+      <VisitorCurrencyLayer />
       <Navbar />
 
       <main className="flex-1">
