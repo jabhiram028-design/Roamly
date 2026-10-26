@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, BarChart3, CalendarDays, ChevronRight, FileText, Inbox, LayoutDashboard, MessageSquare, Moon, Package, RefreshCw, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
+import { getLiveVisitorCount } from '../lib/liveVisitors';
 
 const DashboardPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('Overview');
   const [isDark, setIsDark] = useState(false);
+  const [liveVisitors, setLiveVisitors] = useState(0);
+  const [loadingVisitors, setLoadingVisitors] = useState(false);
+
+  const refreshLiveVisitors = async () => {
+    setLoadingVisitors(true);
+    const count = await getLiveVisitorCount();
+    setLiveVisitors(count);
+    setLoadingVisitors(false);
+  };
 
   useEffect(() => {
     const saved = window.localStorage.getItem('roamly-theme');
@@ -11,6 +21,13 @@ const DashboardPage: React.FC = () => {
     setIsDark(dark);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   }, []);
+
+  useEffect(() => {
+    if (activeSection !== 'Analytics') return;
+    void refreshLiveVisitors();
+    const interval = window.setInterval(() => void refreshLiveVisitors(), 15_000);
+    return () => window.clearInterval(interval);
+  }, [activeSection]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -82,14 +99,14 @@ const DashboardPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
                     <div className="flex items-center justify-between"><div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><Activity className="w-4 h-4" /></div><span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Live</span></div>
-                    <p className="text-2xl font-bold mt-3">0</p><p className="font-semibold text-xs mt-0.5">Live visitors</p><p className="text-[10px] text-gray-500 mt-1">Visitors active on Roamly right now</p>
+                    <p className="text-2xl font-bold mt-3">{liveVisitors}</p><p className="font-semibold text-xs mt-0.5">Live visitors</p><p className="text-[10px] text-gray-500 mt-1">Active in the last 90 seconds</p>
                   </div>
-                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Today</p><p className="text-2xl font-bold mt-2">0</p><p className="font-semibold text-xs mt-0.5">Page views</p></div>
-                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Top page</p><p className="text-sm font-bold mt-3">Home</p><p className="text-[10px] text-gray-500 mt-1">Most viewed page</p></div>
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Today</p><p className="text-2xl font-bold mt-2">—</p><p className="font-semibold text-xs mt-0.5">Page views</p></div>
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Tracking</p><p className="text-sm font-bold mt-3">Connected</p><p className="text-[10px] text-gray-500 mt-1">Supabase live session tracking</p></div>
                 </div>
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                  <div className="flex items-center justify-between gap-3"><div><h2 className="font-bold text-sm">Live Visitors</h2><p className="text-[10px] text-gray-500 mt-0.5">Monitor visitors currently browsing the website.</p></div><button type="button" className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-[10px] font-semibold hover:bg-gray-50"><RefreshCw className="w-3 h-3" /> Refresh</button></div>
-                  <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/70 p-8 text-center"><div className="mx-auto w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><Activity className="w-5 h-5" /></div><p className="font-semibold text-sm mt-3">No active visitors right now</p><p className="text-[10px] text-gray-500 mt-1">The live visitor count will appear here when visitor tracking is connected.</p></div>
+                  <div className="flex items-center justify-between gap-3"><div><h2 className="font-bold text-sm">Live Visitors</h2><p className="text-[10px] text-gray-500 mt-0.5">Real visitors with a heartbeat in the last 90 seconds.</p></div><button type="button" onClick={() => void refreshLiveVisitors()} disabled={loadingVisitors} className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-[10px] font-semibold hover:bg-gray-50 disabled:opacity-50"><RefreshCw className={`w-3 h-3 ${loadingVisitors ? 'animate-spin' : ''}`} /> Refresh</button></div>
+                  <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-8 text-center"><div className="mx-auto w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><Activity className="w-5 h-5" /></div><p className="font-semibold text-sm mt-3">{liveVisitors > 0 ? `${liveVisitors} visitor${liveVisitors === 1 ? '' : 's'} online now` : 'No active visitors right now'}</p><p className="text-[10px] text-gray-500 mt-1">Updates automatically every 15 seconds.</p></div>
                 </div>
               </div>
             ) : (
