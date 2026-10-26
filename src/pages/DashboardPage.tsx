@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, CalendarDays, ChevronRight, Eye, FileText, Inbox, LayoutDashboard, MessageSquare, Moon, Package, Settings, ShieldCheck, Sun, Users, Wifi } from 'lucide-react';
+import { BarChart3, CalendarDays, ChevronRight, FileText, Inbox, LayoutDashboard, MessageSquare, Moon, Package, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
-  const [liveVisitors, setLiveVisitors] = useState('—');
   const [activeSection, setActiveSection] = useState('Overview');
   const [isDark, setIsDark] = useState(false);
 
@@ -11,22 +10,6 @@ const DashboardPage: React.FC = () => {
     const dark = saved === 'dark';
     setIsDark(dark);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-
-    const refresh = async () => {
-      try {
-        const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-        const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
-        if (!url || !key) return;
-        const cutoff = new Date(Date.now() - 90000).toISOString();
-        const response = await fetch(`${url}/rest/v1/roamly_live_visitors?select=session_id&last_seen=gt.${encodeURIComponent(cutoff)}`, {
-          headers: { apikey: key, Authorization: `Bearer ${key}` }, cache: 'no-store'
-        });
-        if (response.ok) setLiveVisitors(String((await response.json()).length));
-      } catch { /* keep dashboard usable */ }
-    };
-    void refresh();
-    const timer = window.setInterval(refresh, 30000);
-    return () => window.clearInterval(timer);
   }, []);
 
   const toggleTheme = () => {
@@ -37,12 +20,11 @@ const DashboardPage: React.FC = () => {
   };
 
   const menu = [
-    ['Overview', LayoutDashboard], ['Live Visitors', Eye], ['Bookings', CalendarDays], ['Incoming Messages', Inbox], ['Outgoing Messages', MessageSquare],
+    ['Overview', LayoutDashboard], ['Bookings', CalendarDays], ['Incoming Messages', Inbox], ['Outgoing Messages', MessageSquare],
     ['Holiday Packages', Package], ['Itineraries', FileText], ['Customers', Users], ['Analytics', BarChart3], ['Team Access', ShieldCheck], ['Settings', Settings]
   ] as const;
 
   const cards = [
-    { label: 'Live visitors', value: liveVisitors, icon: Wifi, detail: 'Real active sessions' },
     { label: 'Bookings', value: '0', icon: CalendarDays, detail: 'Booking requests' },
     { label: 'Incoming messages', value: '0', icon: Inbox, detail: 'Customer messages' },
     { label: 'Customers', value: '0', icon: Users, detail: 'Customer records' },
@@ -82,7 +64,7 @@ const DashboardPage: React.FC = () => {
 
             {activeSection === 'Overview' ? (
               <>
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {cards.map(({ label, value, icon: Icon, detail }) => (
                     <div key={label} className="bg-white rounded-xl border border-gray-100 p-3 shadow-sm">
                       <div className="flex items-center justify-between gap-2"><div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1769E8] flex items-center justify-center"><Icon className="w-4 h-4" /></div><span className="text-lg font-bold">{value}</span></div>
@@ -92,7 +74,7 @@ const DashboardPage: React.FC = () => {
                 </div>
                 <div className="grid lg:grid-cols-2 gap-3 mt-3">
                   <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><h3 className="font-bold text-sm">Quick controls</h3><div className="grid sm:grid-cols-2 gap-2 mt-3">{['Bookings','Incoming Messages','Outgoing Messages','Holiday Packages','Itineraries','Customers'].map(item => <button key={item} onClick={() => setActiveSection(item)} className="text-left p-2.5 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50/40 transition"><span className="text-[11px] font-semibold">Manage {item}</span><ChevronRight className="w-3.5 h-3.5 text-gray-400 float-right mt-0.5" /></button>)}</div></div>
-                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><h3 className="font-bold text-sm">Owner permissions</h3><div className="mt-3 space-y-2 text-[11px] text-gray-600">{['View live visitor analytics','Manage bookings and requests','Manage incoming and outgoing messages','Edit holiday packages and itineraries','Manage customer records','Access analytics and settings','Manage team access'].map(item => <div key={item} className="flex gap-2 items-start"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />{item}</div>)}</div></div>
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><h3 className="font-bold text-sm">Owner permissions</h3><div className="mt-3 space-y-2 text-[11px] text-gray-600">{['Manage bookings and requests','Manage incoming and outgoing messages','Edit holiday packages and itineraries','Manage customer records','Access analytics and settings','Manage team access'].map(item => <div key={item} className="flex gap-2 items-start"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />{item}</div>)}</div></div>
                 </div>
               </>
             ) : (
