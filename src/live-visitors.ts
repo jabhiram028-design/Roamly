@@ -1,5 +1,5 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const SUPABASE_URL = 'https://lqdyosgevaoghvjzclyl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__PzT7pLqCXvcnpYtyHxRkA_jXKmt6OL';
 const TABLE = 'roamly_live_visitors';
 const ACTIVE_WINDOW_SECONDS = 90;
 
@@ -12,12 +12,12 @@ const sessionId = (() => {
   return created;
 })();
 
-const api = SUPABASE_URL && SUPABASE_KEY ? `${SUPABASE_URL}/rest/v1/${TABLE}` : null;
+const api = `${SUPABASE_URL}/rest/v1/${TABLE}`;
 
 function headers() {
   return {
-    apikey: SUPABASE_KEY || '',
-    Authorization: `Bearer ${SUPABASE_KEY || ''}`,
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
     'Content-Type': 'application/json',
   };
 }
@@ -60,7 +60,6 @@ function renderShell() {
 }
 
 async function upsertSession() {
-  if (!api) return;
   await fetch(`${api}?on_conflict=session_id`, {
     method: 'POST',
     headers: { ...headers(), Prefer: 'resolution=merge-duplicates,return=minimal' },
@@ -70,7 +69,6 @@ async function upsertSession() {
 }
 
 async function heartbeat() {
-  if (!api) return;
   await fetch(`${api}?session_id=eq.${encodeURIComponent(sessionId)}`, {
     method: 'PATCH',
     headers: { ...headers(), Prefer: 'return=minimal' },
@@ -81,7 +79,7 @@ async function heartbeat() {
 
 async function refreshCount() {
   const countEl = document.getElementById('rv-count');
-  if (!countEl || !api) return;
+  if (!countEl) return;
   const cutoff = new Date(Date.now() - ACTIVE_WINDOW_SECONDS * 1000).toISOString();
   try {
     const response = await fetch(`${api}?select=session_id&last_seen=gt.${encodeURIComponent(cutoff)}`, {
