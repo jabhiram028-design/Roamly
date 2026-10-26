@@ -13,7 +13,7 @@ import { TravelGuidesPage } from './pages/TravelGuidesPage';
 import { AboutUsPage } from './pages/AboutUsPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { DashboardPage } from './pages/DashboardPage';
+import DashboardPage from './pages/DashboardPage';
 import { BookingModal } from './components/common/BookingModal';
 import { SearchModal } from './components/common/SearchModal';
 import { AuthModal } from './components/common/AuthModal';
