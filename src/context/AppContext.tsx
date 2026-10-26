@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FEATURED_TRIPS } from '../data/mockData';
 import type { TripPackage, UserProfile } from '../types';
 
-export type TabType = 'home' | 'destinations' | 'destination-detail' | 'experiences' | 'trips' | 'trip-detail' | 'guides' | 'guide-detail' | 'about' | 'wishlist' | 'profile';
+export type TabType = 'home' | 'destinations' | 'destination-detail' | 'experiences' | 'trips' | 'trip-detail' | 'guides' | 'guide-detail' | 'about' | 'wishlist' | 'profile' | 'dashboard';
 interface Toast { id: string; message: string; type: 'success' | 'error' | 'info'; }
 interface AppContextType {
   activeTab: TabType; setActiveTab: (tab: TabType) => void;
@@ -25,12 +25,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => { try { const saved = localStorage.getItem('roamly_wishlist'); return saved ? JSON.parse(saved) : ['santorini-greece', 'maldives-island-hopping']; } catch { return ['santorini-greece', 'maldives-island-hopping']; } });
   useEffect(() => { try { localStorage.setItem('roamly_wishlist', JSON.stringify(wishlistIds)); } catch (e) { console.error(e); } }, [wishlistIds]);
   const [searchQuery, setSearchQuery] = useState(''); const [selectedCategory, setSelectedCategory] = useState<string | null>(null); const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-
   const DEFAULT_USER: UserProfile = { id: 'owner-abhi-groups-1', name: 'Abhi Groups 1', email: 'jabhiram028@gmail.com', role: 'owner', joinedDate: 'October 2025' };
   const [user, setUser] = useState<UserProfile | null>(() => { try { const saved = localStorage.getItem('roamly_user'); const parsed = saved ? JSON.parse(saved) as Partial<UserProfile> : {}; const ownerUser = { ...DEFAULT_USER, ...parsed, id: DEFAULT_USER.id, name: DEFAULT_USER.name, email: DEFAULT_USER.email, role: 'owner' as const }; localStorage.setItem('roamly_user', JSON.stringify(ownerUser)); return ownerUser; } catch { return DEFAULT_USER; } });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false); const [selectedTripForBooking, setSelectedTripForBooking] = useState<TripPackage | null>(null); const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); const [toasts, setToasts] = useState<Toast[]>([]);
-
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => { const id = Math.random().toString(36).substring(2, 9); setToasts(prev => [...prev, { id, message, type }]); setTimeout(() => removeToast(id), 4000); };
   const removeToast = (id: string) => setToasts(prev => prev.filter(t => t.id !== id));
   const setActiveTab = (tab: TabType) => { setActiveTabState(tab); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -43,18 +41,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const openAuthModal = (mode: 'login' | 'signup' = 'login') => { setAuthMode(mode); setIsAuthModalOpen(true); }; const closeAuthModal = () => setIsAuthModalOpen(false);
   const openBookingModal = (trip?: TripPackage) => { if (trip) setSelectedTripForBooking(trip); else if (!selectedTripForBooking) setSelectedTripForBooking(FEATURED_TRIPS[0]); setIsBookingModalOpen(true); };
   const closeBookingModal = () => setIsBookingModalOpen(false);
-
-  const submitBooking = async (bookingData: any): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/booking', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bookingData) });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || !result.ok) { showToast(result.message || 'Unable to send booking request. Please try again.', 'error'); return false; }
-      showToast('Booking request sent successfully to Roamly!', 'success');
-      return true;
-    } catch (error) {
-      console.error('Booking submission failed:', error); showToast('Network error. Please try again.', 'error'); return false;
-    }
-  };
+  const submitBooking = async (bookingData: any): Promise<boolean> => { try { const response = await fetch('/api/booking', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bookingData) }); const result = await response.json().catch(() => ({})); if (!response.ok || !result.ok) { showToast(result.message || 'Unable to send booking request. Please try again.', 'error'); return false; } showToast('Booking request sent successfully to Roamly!', 'success'); return true; } catch (error) { console.error('Booking submission failed:', error); showToast('Network error. Please try again.', 'error'); return false; } };
   const openSearchModal = () => setIsSearchModalOpen(true); const closeSearchModal = () => setIsSearchModalOpen(false);
   return <AppContext.Provider value={{ activeTab, setActiveTab, selectedDestinationId, selectedTripId, selectedGuideId, navigateToDestination, navigateToTrip, navigateToGuide, wishlistIds, toggleWishlist, isInWishlist, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory, selectedStyle, setSelectedStyle, user, login, signup, logout, isAuthModalOpen, authMode, openAuthModal, closeAuthModal, isBookingModalOpen, selectedTripForBooking, openBookingModal, closeBookingModal, submitBooking, isSearchModalOpen, openSearchModal, closeSearchModal, toasts, showToast, removeToast }}>{children}</AppContext.Provider>;
 };
