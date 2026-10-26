@@ -58,7 +58,8 @@ export const startLiveVisitorTracking = () => {
 export const getLiveVisitorCount = async () => {
   if (!SUPABASE_URL || !SUPABASE_KEY) return 0;
   try {
-    const response = await request('?select=session_id&last_seen=gte.now()-90s');
+    const cutoff = new Date(Date.now() - 90_000).toISOString();
+    const response = await request(`?select=session_id&last_seen=gte.${encodeURIComponent(cutoff)}`);
     if (!response?.ok) return 0;
     const rows = (await response.json()) as Array<{ session_id: string }>;
     return rows.length;
