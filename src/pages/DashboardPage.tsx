@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, CalendarDays, ChevronRight, FileText, Inbox, LayoutDashboard, MessageSquare, Moon, Package, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
+import { Activity, BarChart3, CalendarDays, ChevronRight, FileText, Inbox, LayoutDashboard, MessageSquare, Moon, Package, RefreshCw, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('Overview');
@@ -77,6 +77,21 @@ const DashboardPage: React.FC = () => {
                   <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><h3 className="font-bold text-sm">Owner permissions</h3><div className="mt-3 space-y-2 text-[11px] text-gray-600">{['Manage bookings and requests','Manage incoming and outgoing messages','Edit holiday packages and itineraries','Manage customer records','Access analytics and settings','Manage team access'].map(item => <div key={item} className="flex gap-2 items-start"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />{item}</div>)}</div></div>
                 </div>
               </>
+            ) : activeSection === 'Analytics' ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                    <div className="flex items-center justify-between"><div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><Activity className="w-4 h-4" /></div><span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Live</span></div>
+                    <p className="text-2xl font-bold mt-3">0</p><p className="font-semibold text-xs mt-0.5">Live visitors</p><p className="text-[10px] text-gray-500 mt-1">Visitors active on Roamly right now</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Today</p><p className="text-2xl font-bold mt-2">0</p><p className="font-semibold text-xs mt-0.5">Page views</p></div>
+                  <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm"><p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Top page</p><p className="text-sm font-bold mt-3">Home</p><p className="text-[10px] text-gray-500 mt-1">Most viewed page</p></div>
+                </div>
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-center justify-between gap-3"><div><h2 className="font-bold text-sm">Live Visitors</h2><p className="text-[10px] text-gray-500 mt-0.5">Monitor visitors currently browsing the website.</p></div><button type="button" className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-[10px] font-semibold hover:bg-gray-50"><RefreshCw className="w-3 h-3" /> Refresh</button></div>
+                  <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/70 p-8 text-center"><div className="mx-auto w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><Activity className="w-5 h-5" /></div><p className="font-semibold text-sm mt-3">No active visitors right now</p><p className="text-[10px] text-gray-500 mt-1">The live visitor count will appear here when visitor tracking is connected.</p></div>
+                </div>
+              </div>
             ) : (
               <div className="mt-3 bg-white rounded-xl border border-gray-100 shadow-sm p-6 min-h-[280px] flex flex-col items-center justify-center text-center">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1769E8] flex items-center justify-center"><Settings className="w-5 h-5" /></div>
