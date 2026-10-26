@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { formatVisitorPrice } from './utils/currency';
 import { Navbar } from './components/layout/Navbar';
@@ -18,6 +18,7 @@ import { SearchModal } from './components/common/SearchModal';
 import { AuthModal } from './components/common/AuthModal';
 import { ToastContainer } from './components/common/Toast';
 import { WhatsAppButton } from './components/common/WhatsAppButton';
+import { Moon, Sun } from 'lucide-react';
 
 const VisitorCurrencyLayer: React.FC = () => {
   useEffect(() => {
@@ -72,6 +73,42 @@ const VisitorCurrencyLayer: React.FC = () => {
   return null;
 };
 
+const ThemeToggle: React.FC = () => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('roamly-theme');
+    const shouldUseDark = saved === 'dark';
+    setIsDark(shouldUseDark);
+    document.documentElement.dataset.theme = shouldUseDark ? 'dark' : 'light';
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.dataset.theme = next ? 'dark' : 'light';
+    window.localStorage.setItem('roamly-theme', next ? 'dark' : 'light');
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      className="theme-toggle fixed right-5 top-[88px] sm:right-7 sm:top-[94px] z-[60]"
+      aria-label={isDark ? 'Switch to day mode' : 'Switch to night mode'}
+      title={isDark ? 'Day mode' : 'Night mode'}
+    >
+      <span className="theme-toggle__scene" aria-hidden="true">
+        <span className="theme-toggle__day"><Sun className="w-3.5 h-3.5" /></span>
+        <span className="theme-toggle__night"><Moon className="w-3.5 h-3.5" /></span>
+      </span>
+      <span className={`theme-toggle__thumb ${isDark ? 'is-night' : ''}`} aria-hidden="true">
+        {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+      </span>
+    </button>
+  );
+};
+
 const AppContent: React.FC = () => {
   const { activeTab } = useApp();
 
@@ -79,6 +116,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#4B5563] font-sans selection:bg-[#1769E8] selection:text-white">
       <VisitorCurrencyLayer />
       <Navbar />
+      <ThemeToggle />
 
       <main className="flex-1">
         {activeTab === 'home' && <HomePage />}
