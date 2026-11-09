@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Compass, House, MapPinned, ShoppingBag, Bike, ArrowUpRight, ShieldCheck, MessageCircle, Backpack, HeartPulse, Footprints, Shirt, BatteryCharging } from 'lucide-react';
+import { Camera, Compass, House, ShoppingBag, Bike, ArrowUpRight, ShieldCheck, MessageCircle, Backpack, HeartPulse, Footprints, Shirt, BatteryCharging } from 'lucide-react';
 
 const WHATSAPP_NUMBER = '919014441204';
 const services = [
