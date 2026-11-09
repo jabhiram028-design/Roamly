@@ -5,6 +5,7 @@ import { startLiveVisitorTracking } from './lib/liveVisitors';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
+import { ServicesPage } from './pages/ServicesPage';
 import { DestinationsPage } from './pages/DestinationsPage';
 import { DestinationDetailPage } from './pages/DestinationDetailPage';
 import { ExperiencesPage } from './pages/ExperiencesPage';
@@ -58,7 +59,7 @@ const ThemeToggle: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { activeTab } = useApp();
-  return <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#4B5563] font-sans selection:bg-[#1769E8] selection:text-white"><VisitorCurrencyLayer /><LiveVisitorTracker /><Navbar /><ThemeToggle /><main className="flex-1">{activeTab === 'home' && <HomePage />}{activeTab === 'destinations' && <DestinationsPage />}{activeTab === 'destination-detail' && <DestinationDetailPage />}{activeTab === 'experiences' && <ExperiencesPage />}{activeTab === 'trips' && <TripsPage />}{activeTab === 'trip-detail' && <TripDetailPage />}{activeTab === 'guides' && <TravelGuidesPage />}{activeTab === 'guide-detail' && <TravelGuidesPage />}{activeTab === 'about' && <AboutUsPage />}{activeTab === 'wishlist' && <WishlistPage />}{activeTab === 'profile' && <ProfilePage />}{activeTab === 'dashboard' && <DashboardPage />}</main><Footer /><BookingModal /><SearchModal /><AuthModal /><ToastContainer /><WhatsAppButton /></div>;
+  return <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#4B5563] font-sans selection:bg-[#1769E8] selection:text-white"><VisitorCurrencyLayer /><LiveVisitorTracker /><Navbar /><ThemeToggle /><main className="flex-1">{activeTab === 'home' && <HomePage />}{activeTab === 'destinations' && <DestinationsPage />}{activeTab === 'destination-detail' && <DestinationDetailPage />}{activeTab === 'experiences' && <ExperiencesPage />}{activeTab === 'services' && <ServicesPage />}{activeTab === 'trips' && <TripsPage />}{activeTab === 'trip-detail' && <TripDetailPage />}{activeTab === 'guides' && <TravelGuidesPage />}{activeTab === 'guide-detail' && <TravelGuidesPage />}{activeTab === 'about' && <AboutUsPage />}{activeTab === 'wishlist' && <WishlistPage />}{activeTab === 'profile' && <ProfilePage />}{activeTab === 'dashboard' && <DashboardPage />}</main><Footer /><BookingModal /><SearchModal /><AuthModal /><ToastContainer /><WhatsAppButton /></div>;
 };
 
 export default function App() { return <AppProvider><AppContent /></AppProvider>; }
