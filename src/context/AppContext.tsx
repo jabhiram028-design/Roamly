@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FEATURED_TRIPS } from '../data/mockData';
 import type { TripPackage, UserProfile } from '../types';
 
-export type TabType = 'home' | 'destinations' | 'destination-detail' | 'experiences' | 'trips' | 'trip-detail' | 'guides' | 'guide-detail' | 'about' | 'wishlist' | 'profile' | 'dashboard';
+export type TabType = 'home' | 'destinations' | 'destination-detail' | 'experiences' | 'services' | 'trips' | 'trip-detail' | 'guides' | 'guide-detail' | 'about' | 'wishlist' | 'profile' | 'dashboard';
 interface Toast { id: string; message: string; type: 'success' | 'error' | 'info'; }
 interface AppContextType {
   activeTab: TabType; setActiveTab: (tab: TabType) => void;
